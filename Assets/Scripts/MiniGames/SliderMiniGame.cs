@@ -9,31 +9,38 @@ public enum MiniGameCompletion { None = -1, Correct, Incorrect }
 
 public interface IMiniGame
 {
-    event Action<MiniGameCompletion> OnCompleted;
+    event Action<IMiniGame> OnCompleted;
 
+    MiniGameCompletion CompletionType { get; }
+
+    void Enable();
     void Activate();
-    void Deactivate();
+
+    void Disable();
 }
 
 public class BaseMiniGame : MonoBehaviour, IMiniGame
 {
     [SerializeField] protected float _miniGameTimeDuration = 5f;
 
-    public event Action<MiniGameCompletion> OnCompleted;
+    public event Action<IMiniGame> OnCompleted;
 
-    protected MiniGameCompletion _completionType = MiniGameCompletion.None;
+    public MiniGameCompletion CompletionType { get; protected set; } = MiniGameCompletion.None;
 
     protected bool _gameTimeIsOver = false;
 
-    protected virtual void OnMiniGameCompleted(MiniGameCompletion type) => OnCompleted?.Invoke(type);
+    protected virtual void OnMiniGameCompleted(IMiniGame game) => OnCompleted?.Invoke(game);
+
+    public virtual void Enable() { gameObject.SetActive(true); }
 
     public virtual void Activate() { }
     protected virtual void StartMiniGameTimer() { }
 
     protected virtual void CheckMiniGameCompletion() { }
 
-    public virtual void Deactivate() { }
     protected virtual void ProcessSelfDeactivation() { }
+
+    public virtual void Disable() { gameObject.SetActive(false); }
 }
 
 public class SliderMiniGame : BaseMiniGame
@@ -66,8 +73,6 @@ public class SliderMiniGame : BaseMiniGame
 
         _sliderTransform = GetComponent<RectTransform>();
     }
-
-    private void Start() => Activate();
 
     public override void Activate()
     {
@@ -152,7 +157,7 @@ public class SliderMiniGame : BaseMiniGame
 
     protected override void CheckMiniGameCompletion()
     {
-        _completionType = (_gameTimeIsOver == false && CheckHandleInRangeOfPositiveField()) 
+        CompletionType = (_gameTimeIsOver == false && CheckHandleInRangeOfPositiveField()) 
                                     ? MiniGameCompletion.Correct 
                                     : MiniGameCompletion.Incorrect;
     }
@@ -162,14 +167,13 @@ public class SliderMiniGame : BaseMiniGame
         return _handle.localPosition.x >= _positiveFieldRangeMin && _handle.localPosition.x <= _positiveFieldRangeMax;
     }
 
-    public override void Deactivate() => ProcessSelfDeactivation();
     protected override void ProcessSelfDeactivation()
     {
         StopGameCycleRoutines();
         NullifyMarkerPostion();
         SetPositiveFiledPosition(Vector2.zero);
 
-        OnMiniGameCompleted(_completionType); 
+        OnMiniGameCompleted(this); 
     }
     private void StopGameCycleRoutines()
     {
