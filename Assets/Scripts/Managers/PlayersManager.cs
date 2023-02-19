@@ -13,25 +13,13 @@ public class PlayersManager : BaseGameManager
 
     public override void Initialize() { }
 
-    public override void Prepare() 
-    {
-        ProjectBus.OnMiniGameFinishAction += ProcessAction;
-    }
-
+    public override void Prepare() { }
     public override void Activate()
     {
         foreach (var player in _players)
         {
             OnPlayerSpawned?.Invoke(player);
         }
-    }
-
-    private void ProcessAction(MiniGameFinishAction action) => ProcessMiniGameFinishing(action.Result);
-    private void ProcessMiniGameFinishing(MiniGameResult result)
-    {
-        Debug.Log($"PlayersManager.ProcessMiniGameFinishing:");
-        Debug.Log($"Mini game is { result.MiniGame.GetType() } ");
-        Debug.Log($"From { result.Collectable.GetType() } with result = { result.MiniGame.CompletionType } ");
     }
 } 
  

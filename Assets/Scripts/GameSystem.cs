@@ -39,9 +39,20 @@ public class GameSystem : MonoBehaviour
 
     private void Start()
     {
+        InitializeGameManagers();
+        PrepareAndActivateGameManagers();
+    }
+
+    private void InitializeGameManagers()
+    {
+        foreach (var manager in _baseGameManagers)
+            manager.Initialize();
+    }
+
+    private void PrepareAndActivateGameManagers()
+    {
         foreach (var manager in _baseGameManagers)
         {
-            manager.Initialize();
             manager.Prepare();
             manager.Activate();
         }

@@ -4,9 +4,10 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class ProjectBus : MonoBehaviour
+public class ProjectBus
 {
     public static event Action<CollectItemAction> OnCollectItemAction;
+    public static event Action<MiniGameStartAction> OnMiniGameStartAction;
     public static event Action<MiniGameFinishAction> OnMiniGameFinishAction;
 
     #region Singletone
@@ -22,11 +23,17 @@ public class ProjectBus : MonoBehaviour
     }
 
     private static ProjectBus _instance = null;
+
+    private ProjectBus() { }
     #endregion
 
     public void SendAction(CollectItemAction action)
     {
         OnCollectItemAction?.Invoke(action);
+    }
+    public void SendAction(MiniGameStartAction action)
+    {
+        OnMiniGameStartAction?.Invoke(action);
     }
     public void SendAction(MiniGameFinishAction action)
     {
@@ -44,6 +51,8 @@ public class CollectItemAction
         Collectable = collectable;
     }
 }
+
+public class MiniGameStartAction { }
 
 public class MiniGameFinishAction
 {

@@ -5,10 +5,7 @@ using UnityEngine;
 
 public class MiniGameManager : BaseGameManager
 {
-    [SerializeField] private GameObject _miniGamePanel = null;
     [SerializeField] private List<BaseMiniGame> _miniGames;
-
-    public event Action OnMiniGameStarted;
 
     private List<MiniGameResult> _miniGameResults = null;
 
@@ -27,13 +24,17 @@ public class MiniGameManager : BaseGameManager
     private void ProcessAction(CollectItemAction action) => ProcessCollecting(action.Collectable);
     private void ProcessCollecting(ICollectable collectable)
     {
-        _miniGamePanel.SetActive(true);
+        OnMiniGameStartEvent();
 
         var miniGame = ActivateRandomMiniGame();
 
         AddMiniGameResult(miniGame, collectable);
     }
 
+    private void OnMiniGameStartEvent()
+    {
+        ProjectBus.Instance.SendAction(new MiniGameStartAction());
+    }
     private IMiniGame ActivateRandomMiniGame()
     {
         var miniGame = GetRandomMiniGame();
@@ -45,14 +46,12 @@ public class MiniGameManager : BaseGameManager
 
         return miniGame;
     }
-
     private BaseMiniGame GetRandomMiniGame()
     {
         var randomIndex = UnityEngine.Random.Range(0, _miniGames.Count - 1);
 
         return _miniGames[randomIndex];
     }
-
     private void AddMiniGameResult(IMiniGame game, ICollectable collectable)
     {
         _miniGameResults.Add(new MiniGameResult(game, collectable));
@@ -60,10 +59,8 @@ public class MiniGameManager : BaseGameManager
 
     private void ProcessMiniGameComplition(IMiniGame game)
     {
-        OnMiniGameFinishedEvent(game);
         DeactivateRandomMiniGame(game);
-
-        _miniGamePanel.SetActive(false);
+        OnMiniGameFinishedEvent(game);
     }
 
     private void OnMiniGameFinishedEvent(IMiniGame game)

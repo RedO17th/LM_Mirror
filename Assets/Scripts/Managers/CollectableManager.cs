@@ -9,11 +9,11 @@ public class CollectableManager : BaseGameManager
     [SerializeField] private float _collisionDistance = 1.5f;
     [SerializeField] private BaseCollectable[] _collectables;
 
-    public event Action<ICollectable> OnItemCollected;
-
     public float CollisionDistance => _collisionDistance;
 
+    //Перевести в ProjectBus
     private PlayersManager _playersManager = null;
+    //
 
     public override void Initialize()
     {
@@ -54,9 +54,25 @@ public class CollectableManager : BaseGameManager
 
 
         ProjectBus.Instance.SendAction(new CollectItemAction(collectable));
-
-        //OnItemCollected?.Invoke(collectable);
     }
 
     public override void Activate() { }
+
+    public void ActivateCollectables(PlayerType targetType)
+    {
+        foreach (var collectable in _collectables)
+        {
+            if (collectable.TargetType == targetType)
+                collectable.Activate();
+        }
+    }
+
+    public void DeactivateCollectables(PlayerType targetType)
+    {
+        foreach (var collectable in _collectables)
+        {
+            if (collectable.TargetType == targetType)
+                collectable.Deactivate();
+        }
+    }
 }

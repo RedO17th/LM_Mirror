@@ -1,18 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using static UnityEditor.Experimental.GraphView.GraphView;
-using UnityEngine.Windows;
-using Input = UnityEngine.Input;
 
-public interface IPlayer
+public interface IMovable
 {
-    PlayerType Type { get; }
-
-    Vector3 Position { get; }
-
     void MoveByDirection(Vector3 direction);
     void RotateByDirection(Vector3 direction);
+}
+
+public interface IPlayer : IMovable
+{
+    PlayerType Type { get; }
+    Vector3 Position { get; }
 }
 
 public class BasePlayer : MonoBehaviour, IPlayer
@@ -25,25 +22,11 @@ public class BasePlayer : MonoBehaviour, IPlayer
     public PlayerType Type => _playerType;
     public Vector3 Position => transform.position;
 
-    float horizontal = 0f;
-    float vertical = 0f;
-    Vector3 _inputDirection = Vector3.zero;
-
     private Rigidbody _playerRB = null;
 
     private void Awake()
     {
         _playerRB = GetComponent<Rigidbody>();  
-    }
-
-    void Update()
-    {
-        horizontal = Input.GetAxis("Horizontal");
-        vertical = Input.GetAxis("Vertical");
-
-        _inputDirection = new Vector3(horizontal, 0f, vertical);
-
-        RotateByDirection(_inputDirection);
     }
 
     public void RotateByDirection(Vector3 direction)
@@ -56,11 +39,6 @@ public class BasePlayer : MonoBehaviour, IPlayer
 
             transform.rotation = targetRotation;
         }
-    }
-
-    private void FixedUpdate()
-    {
-        MoveByDirection(_inputDirection);
     }
 
     public void MoveByDirection(Vector3 direction)
