@@ -52,7 +52,10 @@ public class CollectableManager : BaseGameManager
         collectable.OnCollected -= ProcessCollectingItem;
         collectable.Disable();
 
-        OnItemCollected?.Invoke(collectable);
+
+        ProjectBus.Instance.SendAction(new CollectItemAction(collectable));
+
+        //OnItemCollected?.Invoke(collectable);
     }
 
     public override void Activate() { }

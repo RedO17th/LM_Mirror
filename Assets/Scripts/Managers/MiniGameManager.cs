@@ -9,26 +9,22 @@ public class MiniGameManager : BaseGameManager
     [SerializeField] private List<BaseMiniGame> _miniGames;
 
     public event Action OnMiniGameStarted;
-    public event Action<MiniGameResult> OnMiniGameFinished;
-
-    private CollectableManager _collectableManager = null;
 
     private List<MiniGameResult> _miniGameResults = null;
 
     public override void Initialize()
     {
-        _collectableManager = GameSystem.GetManager<CollectableManager>();
-
         _miniGameResults = new List<MiniGameResult>();
     }
 
     public override void Prepare()
     {
-        _collectableManager.OnItemCollected += ProcessCollecting;
+        ProjectBus.OnCollectItemAction += ProcessAction;
     }
 
     public override void Activate() { }
 
+    private void ProcessAction(CollectItemAction action) => ProcessCollecting(action.Collectable);
     private void ProcessCollecting(ICollectable collectable)
     {
         _miniGamePanel.SetActive(true);
@@ -76,7 +72,7 @@ public class MiniGameManager : BaseGameManager
 
         _miniGameResults.Remove(result);
 
-        OnMiniGameFinished?.Invoke(result);
+        ProjectBus.Instance.SendAction(new MiniGameFinishAction(result));
     }
 
     private MiniGameResult GetMiniGameResult(IMiniGame game)

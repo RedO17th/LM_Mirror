@@ -11,16 +11,11 @@ public class PlayersManager : BaseGameManager
 
     public event Action<IPlayer> OnPlayerSpawned;
 
-    private MiniGameManager _miniGameManager = null;
-
-    public override void Initialize() 
-    {
-        _miniGameManager = GameSystem.GetManager<MiniGameManager>();
-    }
+    public override void Initialize() { }
 
     public override void Prepare() 
     {
-        _miniGameManager.OnMiniGameFinished += ProcessMiniGameFinishing;
+        ProjectBus.OnMiniGameFinishAction += ProcessAction;
     }
 
     public override void Activate()
@@ -31,6 +26,7 @@ public class PlayersManager : BaseGameManager
         }
     }
 
+    private void ProcessAction(MiniGameFinishAction action) => ProcessMiniGameFinishing(action.Result);
     private void ProcessMiniGameFinishing(MiniGameResult result)
     {
         Debug.Log($"PlayersManager.ProcessMiniGameFinishing:");
