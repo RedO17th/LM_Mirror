@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Mirror;
 using UnityEngine;
 
 public class UIManager : BaseGameManager
@@ -14,14 +15,26 @@ public class UIManager : BaseGameManager
 
     public override void Prepare()
     {
-        ProjectBus.OnMiniGameStartAction += ProcessAction;
-        ProjectBus.OnMiniGameFinishAction += ProcessAction;
+        PrepareForServer();
+        PrepareForClient();
     }
-    
-    public override void Activate()
+
+    [Server]
+    private void PrepareForServer()
     {
-        base.Activate();
+        //ProjectBus.OnMiniGameStartAction += ProcessAction;
+        //ProjectBus.OnMiniGameFinishAction += ProcessAction;
+
+        _variableJoystick.gameObject.SetActive(false);
     }
+
+    [Client]
+    private void PrepareForClient()
+    {
+        _variableJoystick.gameObject.SetActive(true);
+    }
+
+    public override void Activate() => base.Activate();
 
     private void ProcessAction(MiniGameStartAction obj)
     {

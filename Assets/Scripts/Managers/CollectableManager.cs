@@ -12,12 +12,12 @@ public class CollectableManager : BaseGameManager
     public float CollisionDistance => _collisionDistance;
 
     //Перевести в ProjectBus
-    private PlayersManager _playersManager = null;
+    //private PlayersManager _playersManager = null;
     //
 
     public override void Initialize()
     {
-        _playersManager = GameSystem.GetManager<PlayersManager>();
+        //_playersManager = GameSystem.GetManager<PlayersManager>();
 
         DisableCollectable();
     }
@@ -30,7 +30,7 @@ public class CollectableManager : BaseGameManager
 
     public override void Prepare()
     {
-        _playersManager.OnPlayerSpawned += ProcessSpawningOfPlayer;
+        //_playersManager.OnPlayerSpawned += ProcessSpawningOfPlayer;
     }
 
     private void ProcessSpawningOfPlayer(IPlayer player)

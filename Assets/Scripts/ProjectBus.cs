@@ -1,14 +1,13 @@
+using Mirror;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEngine;
 
 public class ProjectBus
 {
     public static event Action<CollectItemAction> OnCollectItemAction;
     public static event Action<MiniGameStartAction> OnMiniGameStartAction;
     public static event Action<MiniGameFinishAction> OnMiniGameFinishAction;
+
+    public static event Action<ClientConnectAction> OnClientConnectAction;
 
     #region Singletone
     public static ProjectBus Instance
@@ -40,6 +39,10 @@ public class ProjectBus
         OnMiniGameFinishAction?.Invoke(action);
     }
 
+    public void SendAction(ClientConnectAction action)
+    {
+        OnClientConnectAction?.Invoke(action);
+    }
 }
 
 public class CollectItemAction
@@ -61,5 +64,15 @@ public class MiniGameFinishAction
     public MiniGameFinishAction(MiniGameResult result)
     {
         Result = result;
+    }
+}
+
+public class ClientConnectAction 
+{
+    public NetworkConnectionToClient Connection { get; private set; } = null;
+
+    public ClientConnectAction(NetworkConnectionToClient connection) 
+    {
+        Connection = connection;
     }
 }

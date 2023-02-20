@@ -1,16 +1,27 @@
+using Mirror;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameSystem : MonoBehaviour
+public class BaseGameManager : NetworkBehaviour
+{
+    public virtual void Initialize() { }
+    public virtual void Prepare() { }
+    public virtual void Activate() { }
+}
+
+public class GameSystem : NetworkManager
 {
     [SerializeField] private BaseGameManager[] _baseGameManagers = null;
 
     public static GameSystem Instance => _instance;
     private static GameSystem _instance = null;
 
-    private void Awake()
+    public override void Awake()
     {
+        base.Awake();
+
         InitializeSingletone();
     }
 
@@ -37,8 +48,10 @@ public class GameSystem : MonoBehaviour
         return manager;
     }
 
-    private void Start()
+    public override void OnStartServer()
     {
+        Debug.Log($"GameSystem.OnStartServer");
+
         InitializeGameManagers();
         PrepareAndActivateGameManagers();
     }
@@ -57,11 +70,17 @@ public class GameSystem : MonoBehaviour
             manager.Activate();
         }
     }
-}
 
-public class BaseGameManager : MonoBehaviour
-{
-    public virtual void Initialize() { }
-    public virtual void Prepare() { }
-    public virtual void Activate() { }
+    public override void OnStartClient()
+    {
+        InitializeGameManagers();
+        PrepareAndActivateGameManagers();
+    }
+
+    public override void OnServerConnect(NetworkConnectionToClient conn)
+    {
+        ProjectBus.Instance.SendAction(new ClientConnectAction(conn));
+    }
+
+
 }

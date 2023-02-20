@@ -1,3 +1,4 @@
+using Mirror;
 using UnityEngine;
 
 public interface IMovable
@@ -12,7 +13,7 @@ public interface IPlayer : IMovable
     Vector3 Position { get; }
 }
 
-public class BasePlayer : MonoBehaviour, IPlayer
+public class BasePlayer : NetworkBehaviour, IPlayer
 {
     [SerializeField] private PlayerType _playerType = PlayerType.None;
 

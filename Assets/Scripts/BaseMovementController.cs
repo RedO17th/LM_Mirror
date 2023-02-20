@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using Mirror;
 using UnityEngine;
 
-public class BaseMovementController : MonoBehaviour
+public class BaseMovementController : NetworkBehaviour
 {
     private IMovable _movable = null;
 
@@ -15,20 +16,40 @@ public class BaseMovementController : MonoBehaviour
         _movable = GetComponent<IMovable>();  
     }
 
+    [Client]
     private void Start()
     {
         _variableJoystick = GameSystem.GetManager<UIManager>().Joystick;
     }
 
+    [Client]
     void Update()
     {
-        _inputDirection = new Vector3(_variableJoystick.Horizontal, 0f, _variableJoystick.Vertical);
-
-        _movable.RotateByDirection(_inputDirection);
+        SetInputDirection();
     }
 
+    private void SetInputDirection()
+    {
+        _inputDirection = new Vector3(_variableJoystick.Horizontal, 0f, _variableJoystick.Vertical);
+        
+        CmdSendInputDirectionToRotation(_inputDirection);
+    }
+
+    [Command]
+    private void CmdSendInputDirectionToRotation(Vector3 inputDirection)
+    {
+        _movable.RotateByDirection(inputDirection);
+    }
+
+    [Client]
     private void FixedUpdate()
     {
-        _movable.MoveByDirection(_inputDirection);
+        CmdSendInputDirectionForMove(_inputDirection);
+    }
+
+    [Command]
+    private void CmdSendInputDirectionForMove(Vector3 inputDirection)
+    {
+        _movable.MoveByDirection(inputDirection);
     }
 }
