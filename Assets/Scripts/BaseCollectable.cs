@@ -1,3 +1,4 @@
+using Mirror;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,6 +7,9 @@ using UnityEngine;
 public interface ICollectable
 {
     event Action<ICollectable> OnCollected;
+
+    uint NetID { get; }
+
     DebufType DebufType { get; }
     PlayerType TargetType { get; }
 
@@ -15,12 +19,14 @@ public interface ICollectable
     void Disable();
 }
 
-public class BaseCollectable : MonoBehaviour, ICollectable
+public class BaseCollectable : NetworkBehaviour, ICollectable
 {
     [SerializeField] private DebufType _debufType = DebufType.None;
     [SerializeField] private PlayerType _targetType = PlayerType.None;
 
     public event Action<ICollectable> OnCollected;
+
+    public uint NetID => netId;
 
     public DebufType DebufType => _debufType;
     public PlayerType TargetType => _targetType;
@@ -40,6 +46,11 @@ public class BaseCollectable : MonoBehaviour, ICollectable
         _collisionDistance = _manager.CollisionDistance;
     }
 
+    public void SetSpawnPosition(Vector3 position)
+    {
+        transform.position = position;
+    }
+
     public virtual void Enable() => gameObject.SetActive(true);
 
     public void Activate()
@@ -47,10 +58,11 @@ public class BaseCollectable : MonoBehaviour, ICollectable
         _isActivated = true;
     }
 
+    [Server]
     private void Update()
     {
-        if (_isActivated)
-        { 
+        if (_isActivated && _target != null)
+        {
             CheckCollisionWithTarget();
         }
     }
@@ -72,5 +84,15 @@ public class BaseCollectable : MonoBehaviour, ICollectable
         _isActivated = false;
     }
 
-    public virtual void Disable() => gameObject.SetActive(false);
+    [Server]
+    public virtual void Disable()
+    {
+        DisableObject();
+        RpcDisableObject();
+    }
+
+    private void DisableObject() => gameObject.SetActive(false);
+
+    [ClientRpc]
+    private void RpcDisableObject() => DisableObject();
 }

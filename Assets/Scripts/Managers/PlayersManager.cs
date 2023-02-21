@@ -17,10 +17,8 @@ public class PlayersManager : BaseGameManager
     private int _currentPlayerIndex = -1;
 
     public override void Initialize() { }
-    public override void Prepare() 
-    {
-        PrepareForServer();
-    }
+
+    public override void Prepare() => PrepareForServer();
 
     [Server]
     private void PrepareForServer()
@@ -43,21 +41,28 @@ public class PlayersManager : BaseGameManager
     {
         _currentPlayerIndex++;
 
-        var player = CreatePlayer(_players[_currentPlayerIndex]);
+        var prefab = _players[_currentPlayerIndex];
 
+        NetworkClient.RegisterPrefab(prefab.gameObject);
+
+        var player = CreatePlayer(prefab);
+            player.SetSpawnPosition(GetSpawnPosition());
+
+        NetworkServer.AddPlayerForConnection(action.Connection, player.gameObject);
+
+        ProjectBus.Instance.SendAction(new PlayerSpawnAction(player));
+    }
+
+    private BasePlayer CreatePlayer(BasePlayer prefab)
+    {
+        return Instantiate(prefab);
+    }
+    private Vector3 GetSpawnPosition()
+    {
         float xPosition = Random.Range(_leftUpSpawnCorner.position.x, _rightDownSpawnCorner.position.x);
         float zPosition = Random.Range(_leftUpSpawnCorner.position.z, _rightDownSpawnCorner.position.z);
 
-        player.GetComponent<Transform>().position = new Vector3(xPosition, 0f, zPosition);
-
-        NetworkServer.AddPlayerForConnection(action.Connection, player);
-
-        ProjectBus.Instance.SendAction(new PlayerSpawnAction());
-    }
-
-    private GameObject CreatePlayer(BasePlayer prefab)
-    {
-        return Instantiate(prefab).gameObject;
+        return new Vector3(xPosition, 0f, zPosition);
     }
 
     //Disconnect

@@ -95,5 +95,10 @@ public class ClientDisconnectAction
 
 public class PlayerSpawnAction
 {
-    public PlayerSpawnAction() { }
+    public IPlayer Player { get; private set; } = null;
+
+    public PlayerSpawnAction(IPlayer player) 
+    {
+        Player = player;
+    }
 }

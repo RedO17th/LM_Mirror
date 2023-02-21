@@ -55,6 +55,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: YellowPlayer
       objectReference: {fileID: 0}
+    - target: {fileID: 723651844281760207, guid: 3286c4e1e7cf5954ab6d249ee45a16cf, type: 3}
+      propertyPath: _playerType
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 723651844319144049, guid: 3286c4e1e7cf5954ab6d249ee45a16cf, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 

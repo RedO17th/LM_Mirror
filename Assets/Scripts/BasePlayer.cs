@@ -30,6 +30,11 @@ public class BasePlayer : NetworkBehaviour, IPlayer
         _playerRB = GetComponent<Rigidbody>();  
     }
 
+    public void SetSpawnPosition(Vector3 position)
+    {
+        transform.position = position;
+    }
+
     public void RotateByDirection(Vector3 direction)
     {
         var directionRotation = new Vector3(direction.x, 0f, direction.z);

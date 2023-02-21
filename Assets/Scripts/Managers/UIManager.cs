@@ -24,8 +24,8 @@ public class UIManager : BaseGameManager
     {
         ProjectBus.OnPlayerSpawnAction += ProcessPlayerSpawnAction;
 
-        //ProjectBus.OnMiniGameStartAction += ProcessAction;
-        //ProjectBus.OnMiniGameFinishAction += ProcessAction;
+        ProjectBus.OnMiniGameStartAction += ProcessMiniGameStartAction;
+        ProjectBus.OnMiniGameFinishAction += ProcessMiniGameFinishAction;
 
         _variableJoystick.gameObject.SetActive(false);
     }
@@ -35,12 +35,7 @@ public class UIManager : BaseGameManager
 
     public override void Activate() => base.Activate();
 
-    private void ProcessPlayerSpawnAction(PlayerSpawnAction action)
-    {
-        Debug.Log($"UIManager.ProcessPlayerSpawnAction: Server");
-
-        RpcActivatInputView();
-    }
+    private void ProcessPlayerSpawnAction(PlayerSpawnAction action) => RpcActivatInputView();
 
     [ClientRpc]
     private void RpcActivatInputView()
@@ -48,23 +43,15 @@ public class UIManager : BaseGameManager
         _variableJoystick.gameObject.SetActive(true);
     }
 
-    //public override void OnStartClient()
-    //{
-    //    _variableJoystick.gameObject.SetActive(true);
-    //}
+    private void ProcessMiniGameStartAction(MiniGameStartAction obj) => RpcActivateGamePanel();
 
-    //private void ProcessAction(MiniGameStartAction obj)
-    //{
-    //    ActivateGamePanel();
-    //}
+    [ClientRpc]
+    private void RpcActivateGamePanel() => _miniGamePanel.SetActive(true);
 
-    //private void ActivateGamePanel() => _miniGamePanel.SetActive(true);
+    private void ProcessMiniGameFinishAction(MiniGameFinishAction obj) => RpcDeactivateGamePanel();
 
-    //private void ProcessAction(MiniGameFinishAction obj)
-    //{
-    //    DeactivateGamePanel();
-    //}
-    //private void DeactivateGamePanel() => _miniGamePanel.SetActive(false);
+    [ClientRpc]
+    private void RpcDeactivateGamePanel() => _miniGamePanel.SetActive(false);
 
 
 }

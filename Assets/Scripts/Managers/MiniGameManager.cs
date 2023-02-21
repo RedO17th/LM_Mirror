@@ -1,3 +1,4 @@
+using Mirror;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -16,6 +17,12 @@ public class MiniGameManager : BaseGameManager
 
     public override void Prepare()
     {
+        PrepareForServer();
+    }
+
+    [Server]
+    private void PrepareForServer()
+    {
         ProjectBus.OnCollectItemAction += ProcessAction;
     }
 
@@ -25,21 +32,27 @@ public class MiniGameManager : BaseGameManager
     private void ProcessCollecting(ICollectable collectable)
     {
         OnMiniGameStartEvent();
-
-        var miniGame = ActivateRandomMiniGame();
-
-        AddMiniGameResult(miniGame, collectable);
+        RpcActivateMiniGame();
     }
 
     private void OnMiniGameStartEvent()
     {
         ProjectBus.Instance.SendAction(new MiniGameStartAction());
     }
+
+    [ClientRpc]
+    //private void RpcProcessCollecting(ICollectable collectable)
+    private void RpcActivateMiniGame()
+    {
+        var miniGame = ActivateRandomMiniGame();
+
+        //AddMiniGameResult(miniGame, collectable);
+    }
     private IMiniGame ActivateRandomMiniGame()
     {
         var miniGame = GetRandomMiniGame();
 
-            miniGame.OnCompleted += ProcessMiniGameComplition;
+            miniGame.OnCompleted += ProcessMiniGameCompletion;
 
             miniGame.Enable();
             miniGame.Activate();
@@ -52,22 +65,31 @@ public class MiniGameManager : BaseGameManager
 
         return _miniGames[randomIndex];
     }
-    private void AddMiniGameResult(IMiniGame game, ICollectable collectable)
-    {
-        _miniGameResults.Add(new MiniGameResult(game, collectable));
-    }
 
-    private void ProcessMiniGameComplition(IMiniGame game)
+    //private void AddMiniGameResult(IMiniGame game, ICollectable collectable)
+    //{
+    //    _miniGameResults.Add(new MiniGameResult(game, collectable));
+    //}
+
+    [Client]
+    private void ProcessMiniGameCompletion(IMiniGame game)
     {
         DeactivateRandomMiniGame(game);
         OnMiniGameFinishedEvent(game);
+    }
+
+    private void DeactivateRandomMiniGame(IMiniGame game)
+    {
+        game.OnCompleted -= ProcessMiniGameCompletion;
+
+        game.Disable();
     }
 
     private void OnMiniGameFinishedEvent(IMiniGame game)
     {
         var result = GetMiniGameResult(game);
 
-        _miniGameResults.Remove(result);
+        //_miniGameResults.Remove(result);
 
         ProjectBus.Instance.SendAction(new MiniGameFinishAction(result));
     }
@@ -88,12 +110,7 @@ public class MiniGameManager : BaseGameManager
         return mnResult;
     }
 
-    private void DeactivateRandomMiniGame(IMiniGame game)
-    {
-        game.OnCompleted -= ProcessMiniGameComplition;
 
-        game.Disable();
-    }
 }
 
 public class MiniGameResult
