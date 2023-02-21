@@ -24,10 +24,12 @@ public class BasePlayer : NetworkBehaviour, IPlayer
     public Vector3 Position => transform.position;
 
     private Rigidbody _playerRB = null;
+    private BaseMovementController _movementController = null;
 
     private void Awake()
     {
         _playerRB = GetComponent<Rigidbody>();  
+        _movementController = GetComponent<BaseMovementController>();  
     }
 
     public void SetSpawnPosition(Vector3 position)
@@ -50,5 +52,13 @@ public class BasePlayer : NetworkBehaviour, IPlayer
     public void MoveByDirection(Vector3 direction)
     {
         _playerRB.velocity = direction * _speedMovement * Time.deltaTime;
+    }
+
+    public void StartMovemet() => _movementController.Enable();
+    public void StopMovement()
+    {
+        _movementController.Disable();
+
+        _playerRB.velocity = Vector3.zero;
     }
 }

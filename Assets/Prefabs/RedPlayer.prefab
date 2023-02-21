@@ -212,7 +212,7 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0.1
   _playerType: 0
-  _speedMovement: 350
+  _speedMovement: 500
   _speedRotation: 10
 --- !u!114 &723651844281760205
 MonoBehaviour:

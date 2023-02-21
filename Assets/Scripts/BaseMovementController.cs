@@ -13,7 +13,7 @@ public class BaseMovementController : NetworkBehaviour
 
     private void Awake()
     {
-        _movable = GetComponent<IMovable>();  
+        _movable = GetComponent<IMovable>();
     }
 
     [Client]
@@ -22,10 +22,28 @@ public class BaseMovementController : NetworkBehaviour
         _variableJoystick = GameSystem.GetManager<UIManager>().Joystick;
     }
 
-    [Client]
+    public void Enable() => RpcEnable();
+
+    [ClientRpc]
+    private void RpcEnable()
+    {
+        enabled = true;
+    }
+
+    public void Disable() => RpcDisable();
+
+    [ClientRpc]
+    private void RpcDisable()
+    {
+        enabled = false;
+
+        _inputDirection = Vector3.zero;
+    }
+
     void Update()
     {
-        SetInputDirection();
+        if(isClient)
+            SetInputDirection();
     }
 
     private void SetInputDirection()
@@ -41,10 +59,10 @@ public class BaseMovementController : NetworkBehaviour
         _movable.RotateByDirection(inputDirection);
     }
 
-    [Client]
     private void FixedUpdate()
     {
-        CmdSendInputDirectionForMove(_inputDirection);
+        if (isClient)
+            CmdSendInputDirectionForMove(_inputDirection);
     }
 
     [Command]

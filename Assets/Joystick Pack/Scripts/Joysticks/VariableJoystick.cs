@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -58,6 +59,8 @@ public class VariableJoystick : Joystick
         }
         base.HandleInput(magnitude, normalised, radius, cam);
     }
+
+    public void SetJoystickStartPosition() => SetStartPosition();
 }
 
 public enum JoystickType { Fixed, Floating, Dynamic }

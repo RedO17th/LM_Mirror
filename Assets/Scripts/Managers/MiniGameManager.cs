@@ -8,12 +8,7 @@ public class MiniGameManager : BaseGameManager
 {
     [SerializeField] private List<BaseMiniGame> _miniGames;
 
-    public override void Initialize() { }
-
-    public override void Prepare()
-    {
-        PrepareForServer();
-    }
+    public override void Prepare() => PrepareForServer();
 
     [Server]
     private void PrepareForServer()
@@ -72,5 +67,10 @@ public class MiniGameManager : BaseGameManager
     private void CmdOnMiniGameFinishedEvent(MiniGameCompletion type)
     {
         ProjectBus.Instance.SendAction(new MiniGameFinishAction(type));
+    }
+
+    public override void Deactivate()
+    {
+        ProjectBus.OnCollectItemAction -= ProcessAction;
     }
 }

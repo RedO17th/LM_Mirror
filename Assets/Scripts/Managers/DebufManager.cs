@@ -14,10 +14,7 @@ public class DebufManager : BaseGameManager
 
     private DebufType _necessaryDebufType = DebufType.None;
 
-    public override void Prepare()
-    {
-        PrepareForServer();
-    }
+    public override void Prepare() => PrepareForServer();
 
     [Server]
     private void PrepareForServer()
@@ -77,6 +74,15 @@ public class DebufManager : BaseGameManager
         }
 
         return result;
+    }
+
+    public override void Deactivate()
+    {
+        ProjectBus.OnCollectItemAction -= ProcessItemCollectAction;
+        ProjectBus.OnMiniGameFinishAction -= ProcessMiniGameFinishAction;
+
+        TargetPlayerType = PlayerType.None;
+        _necessaryDebufType = DebufType.None;
     }
 }
 

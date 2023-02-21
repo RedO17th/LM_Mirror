@@ -374,6 +374,7 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0.1
+  _inputModule: {fileID: 1122394446}
   _miniGamePanel: {fileID: 1719598668}
   _variableJoystick: {fileID: 649438436}
 --- !u!114 &610468471

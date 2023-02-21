@@ -9,6 +9,7 @@ public class BaseGameManager : NetworkBehaviour
     public virtual void Initialize() { }
     public virtual void Prepare() { }
     public virtual void Activate() { }
+    public virtual void Deactivate() { }
 }
 
 public class GameSystem : NetworkManager
@@ -69,14 +70,6 @@ public class GameSystem : NetworkManager
         }
     }
 
-    //??
-    public override void OnStartClient()
-    {
-        InitializeGameManagers();
-        PrepareAndActivateGameManagers();
-    }
-    //..
-
     public override void OnServerConnect(NetworkConnectionToClient conn)
     {
         ProjectBus.Instance.SendAction(new ClientConnectAction(conn));
@@ -89,5 +82,10 @@ public class GameSystem : NetworkManager
         ProjectBus.Instance.SendAction(new ClientDisconnectAction());
     }
 
-
+    public override void OnStopServer() => DeactivateManagers();
+    private void DeactivateManagers()
+    {
+        foreach (var manager in _baseGameManagers)
+            manager.Deactivate();
+    }
 }

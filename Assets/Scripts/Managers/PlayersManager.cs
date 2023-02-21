@@ -14,9 +14,14 @@ public class PlayersManager : BaseGameManager
 
     [SerializeField] private BasePlayer[] _players = null;
 
+    private List<BasePlayer> _createdPlayers;
+    
     private int _currentPlayerIndex = -1;
 
-    public override void Initialize() { }
+    public override void Initialize()
+    {
+        _createdPlayers = new List<BasePlayer>();
+    }
 
     public override void Prepare() => PrepareForServer();
 
@@ -25,6 +30,9 @@ public class PlayersManager : BaseGameManager
     {
         ProjectBus.OnClientConnectAction += ProcessConnectAction;
         ProjectBus.OnClientDisconnectAction  += ProcessDisconnectAction;
+
+        ProjectBus.OnMiniGameStartAction += ProcessMiniGameStart;
+        ProjectBus.OnMiniGameFinishAction += ProcessMiniGameFinish;
     }
 
     public override void Activate() { }
@@ -48,6 +56,8 @@ public class PlayersManager : BaseGameManager
         var player = CreatePlayer(prefab);
             player.SetSpawnPosition(GetSpawnPosition());
 
+            _createdPlayers.Add(player);
+
         NetworkServer.AddPlayerForConnection(action.Connection, player.gameObject);
 
         ProjectBus.Instance.SendAction(new PlayerSpawnAction(player));
@@ -65,10 +75,57 @@ public class PlayersManager : BaseGameManager
         return new Vector3(xPosition, 0f, zPosition);
     }
 
-    //Disconnect
+    private void ProcessMiniGameStart(MiniGameStartAction obj) => StopPlayer();
+    private void StopPlayer()
+    {
+        Debug.Log($"PlayersManager.StopPlayer");
+
+        foreach (var player in _createdPlayers)
+        {
+            Debug.Log($"Player is {player.gameObject.name}");
+
+            if (player.isLocalPlayer)
+            {
+                Debug.Log($"isLocalPlayer is { player.gameObject.name }");
+
+                player.StopMovement();
+                break;
+            }
+        }
+    }
+
+    private void ProcessMiniGameFinish(MiniGameFinishAction obj) => StartPlayer();
+    private void StartPlayer()
+    {
+        Debug.Log($"PlayersManager.StartPlayer");
+
+        foreach (var player in _createdPlayers)
+        {
+            Debug.Log($"Player is {player.gameObject.name}");
+
+            if (player.isLocalPlayer)
+            {
+                Debug.Log($"isLocalPlayer is {player.gameObject.name}");
+
+                player.StartMovemet();
+                break;
+            }
+        }
+    }
+
+    //Disconnect (template)
     private void ProcessDisconnectAction(ClientDisconnectAction obj)
     {
         _currentPlayerIndex--;
+    }
+
+    public override void Deactivate()
+    {
+        ProjectBus.OnClientConnectAction -= ProcessConnectAction;
+        ProjectBus.OnClientDisconnectAction -= ProcessDisconnectAction;
+
+        ProjectBus.OnMiniGameStartAction -= ProcessMiniGameStart;
+        ProjectBus.OnMiniGameFinishAction -= ProcessMiniGameFinish;
     }
 } 
  

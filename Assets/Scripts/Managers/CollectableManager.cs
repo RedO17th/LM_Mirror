@@ -20,12 +20,7 @@ public class CollectableManager : BaseGameManager
 
     private List<BaseCollectable> _collected;
 
-    public override void Initialize() { }
-
-    public override void Prepare()
-    {
-        PrepareToServer();
-    }
+    public override void Prepare() => PrepareToServer();
 
     [Server]
     private void PrepareToServer()
@@ -115,5 +110,13 @@ public class CollectableManager : BaseGameManager
             if (collectable.TargetType == targetType)
                 collectable.Deactivate();
         }
+    }
+
+    public override void Deactivate()
+    {
+        _collected.Clear();
+        _collected = null;
+
+        ProjectBus.OnPlayerSpawnAction -= ProcessPlayerSpawnAction;
     }
 }
