@@ -53,11 +53,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 723651844281760201, guid: 3286c4e1e7cf5954ab6d249ee45a16cf, type: 3}
       propertyPath: m_Name
-      value: RedPlayer
+      value: YellowPlayer
       objectReference: {fileID: 0}
+    - target: {fileID: 723651844319144049, guid: 3286c4e1e7cf5954ab6d249ee45a16cf, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 20c05f7b284bafc49adcd57ec96dc48e, type: 2}
     - target: {fileID: 1129392689067625872, guid: 3286c4e1e7cf5954ab6d249ee45a16cf, type: 3}
       propertyPath: sceneId
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1129392689067625872, guid: 3286c4e1e7cf5954ab6d249ee45a16cf, type: 3}
+      propertyPath: _assetId
+      value: 3186119542
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3286c4e1e7cf5954ab6d249ee45a16cf, type: 3}

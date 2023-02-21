@@ -8,6 +8,9 @@ public class ProjectBus
     public static event Action<MiniGameFinishAction> OnMiniGameFinishAction;
 
     public static event Action<ClientConnectAction> OnClientConnectAction;
+    public static event Action<ClientDisconnectAction> OnClientDisconnectAction;
+
+    public static event Action<PlayerSpawnAction> OnPlayerSpawnAction;
 
     #region Singletone
     public static ProjectBus Instance
@@ -43,6 +46,14 @@ public class ProjectBus
     {
         OnClientConnectAction?.Invoke(action);
     }
+    public void SendAction(ClientDisconnectAction action)
+    {
+        OnClientDisconnectAction?.Invoke(action);
+    }
+    public void SendAction(PlayerSpawnAction action)
+    {
+        OnPlayerSpawnAction?.Invoke(action);
+    }
 }
 
 public class CollectItemAction
@@ -75,4 +86,14 @@ public class ClientConnectAction
     {
         Connection = connection;
     }
+}
+
+public class ClientDisconnectAction
+{
+    public ClientDisconnectAction() { }
+}
+
+public class PlayerSpawnAction
+{
+    public PlayerSpawnAction() { }
 }

@@ -82,5 +82,12 @@ public class GameSystem : NetworkManager
         ProjectBus.Instance.SendAction(new ClientConnectAction(conn));
     }
 
+    public override void OnServerDisconnect(NetworkConnectionToClient conn)
+    {
+        base.OnServerDisconnect(conn);
+
+        ProjectBus.Instance.SendAction(new ClientDisconnectAction());
+    }
+
 
 }
