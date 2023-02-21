@@ -19,12 +19,7 @@ public class NonCollectDebuf : BaseDebaf
 
         _collectableManager = GameSystem.GetManager<CollectableManager>();
 
-        _targetType = GetTargetCollectableType();
-    }
-
-    private PlayerType GetTargetCollectableType()
-    { 
-        return _debufManager.MiniGameResult.Collectable.TargetType;
+        _targetType = _debufManager.TargetPlayerType;
     }
 
     public override void Activate()

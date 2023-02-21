@@ -50,8 +50,6 @@ public class GameSystem : NetworkManager
 
     public override void OnStartServer()
     {
-        Debug.Log($"GameSystem.OnStartServer");
-
         InitializeGameManagers();
         PrepareAndActivateGameManagers();
     }
@@ -71,11 +69,13 @@ public class GameSystem : NetworkManager
         }
     }
 
+    //??
     public override void OnStartClient()
     {
         InitializeGameManagers();
         PrepareAndActivateGameManagers();
     }
+    //..
 
     public override void OnServerConnect(NetworkConnectionToClient conn)
     {

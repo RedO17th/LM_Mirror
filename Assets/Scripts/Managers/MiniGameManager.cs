@@ -8,12 +8,7 @@ public class MiniGameManager : BaseGameManager
 {
     [SerializeField] private List<BaseMiniGame> _miniGames;
 
-    private List<MiniGameResult> _miniGameResults = null;
-
-    public override void Initialize()
-    {
-        _miniGameResults = new List<MiniGameResult>();
-    }
+    public override void Initialize() { }
 
     public override void Prepare()
     {
@@ -28,8 +23,8 @@ public class MiniGameManager : BaseGameManager
 
     public override void Activate() { }
 
-    private void ProcessAction(CollectItemAction action) => ProcessCollecting(action.Collectable);
-    private void ProcessCollecting(ICollectable collectable)
+    private void ProcessAction(CollectItemAction action) => ProcessCollecting();
+    private void ProcessCollecting()
     {
         OnMiniGameStartEvent();
         RpcActivateMiniGame();
@@ -41,14 +36,7 @@ public class MiniGameManager : BaseGameManager
     }
 
     [ClientRpc]
-    //private void RpcProcessCollecting(ICollectable collectable)
     private void RpcActivateMiniGame()
-    {
-        var miniGame = ActivateRandomMiniGame();
-
-        //AddMiniGameResult(miniGame, collectable);
-    }
-    private IMiniGame ActivateRandomMiniGame()
     {
         var miniGame = GetRandomMiniGame();
 
@@ -56,9 +44,8 @@ public class MiniGameManager : BaseGameManager
 
             miniGame.Enable();
             miniGame.Activate();
-
-        return miniGame;
     }
+
     private BaseMiniGame GetRandomMiniGame()
     {
         var randomIndex = UnityEngine.Random.Range(0, _miniGames.Count - 1);
@@ -66,61 +53,24 @@ public class MiniGameManager : BaseGameManager
         return _miniGames[randomIndex];
     }
 
-    //private void AddMiniGameResult(IMiniGame game, ICollectable collectable)
-    //{
-    //    _miniGameResults.Add(new MiniGameResult(game, collectable));
-    //}
-
     [Client]
     private void ProcessMiniGameCompletion(IMiniGame game)
     {
-        DeactivateRandomMiniGame(game);
-        OnMiniGameFinishedEvent(game);
+        DeactivateMiniGame(game);
+
+        CmdOnMiniGameFinishedEvent(game.CompletionType);
     }
 
-    private void DeactivateRandomMiniGame(IMiniGame game)
+    private void DeactivateMiniGame(IMiniGame game)
     {
         game.OnCompleted -= ProcessMiniGameCompletion;
 
         game.Disable();
     }
 
-    private void OnMiniGameFinishedEvent(IMiniGame game)
+    [Command(requiresAuthority = false)]
+    private void CmdOnMiniGameFinishedEvent(MiniGameCompletion type)
     {
-        var result = GetMiniGameResult(game);
-
-        //_miniGameResults.Remove(result);
-
-        ProjectBus.Instance.SendAction(new MiniGameFinishAction(result));
-    }
-
-    private MiniGameResult GetMiniGameResult(IMiniGame game)
-    {
-        MiniGameResult mnResult = null;
-
-        foreach (var result in _miniGameResults)
-        {
-            if (result.MiniGame == game)
-            {
-                mnResult = result;
-                break;
-            }
-        }
-
-        return mnResult;
-    }
-
-
-}
-
-public class MiniGameResult
-{
-    public IMiniGame MiniGame { get; private set; } = null;
-    public ICollectable Collectable { get; private set; } = null;
-
-    public MiniGameResult(IMiniGame game, ICollectable collectable) 
-    {
-        MiniGame = game;
-        Collectable = collectable;
+        ProjectBus.Instance.SendAction(new MiniGameFinishAction(type));
     }
 }

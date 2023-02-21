@@ -45,4 +45,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _debufType: 0
-  _workTime: 10
+  _workTime: 15

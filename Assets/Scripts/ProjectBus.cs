@@ -66,15 +66,18 @@ public class CollectItemAction
     }
 }
 
-public class MiniGameStartAction { }
+public class MiniGameStartAction 
+{
+    public MiniGameStartAction() { }
+}
 
 public class MiniGameFinishAction
 {
-    public MiniGameResult Result { get; private set; } = null;
+    public MiniGameCompletion CompletionType { get; private set; } = MiniGameCompletion.None;
 
-    public MiniGameFinishAction(MiniGameResult result)
+    public MiniGameFinishAction(MiniGameCompletion type) 
     {
-        Result = result;
+        CompletionType = type;
     }
 }
 

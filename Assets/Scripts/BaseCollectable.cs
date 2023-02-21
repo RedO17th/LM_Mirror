@@ -34,7 +34,7 @@ public class BaseCollectable : NetworkBehaviour, ICollectable
     protected CollectableManager _manager = null;
     protected IPlayer _target = null;
 
-    protected bool _isActivated = true;
+    public bool _isActivated = true;
 
     protected float _collisionDistance = 0f;
 

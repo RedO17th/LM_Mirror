@@ -1,3 +1,5 @@
+using Mirror;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,48 +10,66 @@ public class DebufManager : BaseGameManager
 {
     [SerializeField] private BaseDebaf[] _debafs = null;
 
-    public MiniGameResult MiniGameResult { get; private set; } = null;
+    public PlayerType TargetPlayerType { get; private set; } = PlayerType.None;  
 
-    public override void Initialize()
-    {
-        base.Initialize();
-    }
+    private DebufType _necessaryDebufType = DebufType.None;
 
     public override void Prepare()
     {
-        ProjectBus.OnMiniGameFinishAction += ProcessAction;
+        PrepareForServer();
     }
 
-    public override void Activate()
+    [Server]
+    private void PrepareForServer()
     {
-        base.Activate();
+        ProjectBus.OnCollectItemAction += ProcessItemCollectAction;
+        ProjectBus.OnMiniGameFinishAction += ProcessMiniGameFinishAction;
     }
 
-    private void ProcessAction(MiniGameFinishAction action) => ProcessMiniGameFinishing(action.Result);
-    private void ProcessMiniGameFinishing(MiniGameResult result)
+    private void ProcessItemCollectAction(CollectItemAction action)
     {
-        MiniGameResult = result;
-
-        CreateAndActivateDebuf(MiniGameResult.Collectable.DebufType);
+        TargetPlayerType = action.Collectable.TargetType;
+        _necessaryDebufType = action.Collectable.DebufType;
     }
 
-    private void CreateAndActivateDebuf(DebufType type)
+    private void ProcessMiniGameFinishAction(MiniGameFinishAction action)
     {
-        var debuf = InstantiateDebuf(type);
+        Debug.Log($"DebufManager.ProcessMiniGameFinishAction: finish type is { action.CompletionType } ");
+
+        ProcessMiniGameCompletion(action.CompletionType);
+    }
+
+    private void ProcessMiniGameCompletion(MiniGameCompletion type)
+    {
+        if (type == MiniGameCompletion.Correct)
+        {
+            TargetPlayerType = PlayerType.None;
+            _necessaryDebufType = DebufType.None;
+        }
+        else
+        {
+            CreateAndActivateDebuf();
+        }
+    }
+
+    private void CreateAndActivateDebuf()
+    {
+        var debuf = InstantiateDebuf();
             debuf.Initialize(this);
             debuf.Activate();
     }
-    private BaseDebaf InstantiateDebuf(DebufType type)
+
+    private BaseDebaf InstantiateDebuf()
     {
-        return Instantiate(GetDebufPrefab(type), transform); 
+        return Instantiate(GetDebufPrefab(), transform); 
     }
-    private BaseDebaf GetDebufPrefab(DebufType type)
+    private BaseDebaf GetDebufPrefab()
     {
         BaseDebaf result = null;
 
         foreach (var debuf in _debafs)
         {
-            if (debuf.Type == type)
+            if (debuf.Type == _necessaryDebufType)
             {
                 result = debuf;
                 break;

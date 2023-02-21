@@ -998,6 +998,7 @@ MonoBehaviour:
   - {fileID: 1227058579}
   - {fileID: 1722031301}
   - {fileID: 610468469}
+  - {fileID: 1441056374}
 --- !u!114 &1019949121
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1923,7 +1924,7 @@ MonoBehaviour:
   _leftUpSpawnCorner: {fileID: 1935182398}
   _rightDownSpawnCorner: {fileID: 1519668679}
   _collisionDistance: 1.5
-  _collectables:
+  _collectablePrefabs:
   - {fileID: 5903498011829477999, guid: bfd2e5ad4728b3f478d1ebfa71ca08ef, type: 3}
   - {fileID: 7220155506278673524, guid: f4ba1c4f35366ba49a448b849e308fb5, type: 3}
   - {fileID: 4846138876329302441, guid: 7e3b9962aff04cf4092a1b3b052776e9, type: 3}
