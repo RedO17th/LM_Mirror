@@ -56,6 +56,10 @@ PrefabInstance:
       value: YellowPlayer
       objectReference: {fileID: 0}
     - target: {fileID: 723651844281760207, guid: 3286c4e1e7cf5954ab6d249ee45a16cf, type: 3}
+      propertyPath: _name
+      value: Mister Yellow
+      objectReference: {fileID: 0}
+    - target: {fileID: 723651844281760207, guid: 3286c4e1e7cf5954ab6d249ee45a16cf, type: 3}
       propertyPath: _playerType
       value: 2
       objectReference: {fileID: 0}

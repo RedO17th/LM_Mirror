@@ -13,6 +13,7 @@ public class ProjectBus
     public static event Action<ClientNetworkConnectionAction> OnClientConnectionAction;
 
     public static event Action<PlayerSpawnAction> OnPlayerSpawnAction;
+    public static event Action<ShowMiniGameInfoAction> OnShowMiniGameInfoAction;
 
     #region Singletone
     public static ProjectBus Instance
@@ -62,6 +63,11 @@ public class ProjectBus
     {
         OnPlayerSpawnAction?.Invoke(action);
     }
+
+    public void SendAction(ShowMiniGameInfoAction action)
+    {
+        OnShowMiniGameInfoAction?.Invoke(action);
+    }
 }
 
 public class CollectItemAction
@@ -76,23 +82,22 @@ public class CollectItemAction
 
 public class MiniGameStartByAction 
 {
-    public NetworkConnection Connection { get; private set; } = null;
+    public NetworkConnection PlayerNetConnection { get; private set; } = null;
     public MiniGameStartByAction(NetworkConnection connection) 
     {
-        Connection = connection;
+        PlayerNetConnection = connection;
     }
 }
 
 public class MiniGameFinishAction
 {
-    public NetworkConnectionToClient Connection => _playerIdentity.connectionToClient;
+    public NetworkIdentity PlayerIdentity { get; private set; }  = null;
+    public NetworkConnectionToClient PlayerNetConnection => PlayerIdentity.connectionToClient;
     public MiniGameCompletion CompletionType { get; private set; } = MiniGameCompletion.None;
-
-    private NetworkIdentity _playerIdentity = null;
 
     public MiniGameFinishAction(NetworkIdentity identity, MiniGameCompletion type) 
     {
-        _playerIdentity = identity;
+        PlayerIdentity = identity;
         CompletionType = type;
     }
 }
@@ -128,5 +133,17 @@ public class PlayerSpawnAction
     public PlayerSpawnAction(IPlayer player) 
     {
         Player = player;
+    }
+}
+
+public class ShowMiniGameInfoAction
+{
+    public NetworkIdentity TargetIdentity { get; private set; } = null;
+    public NetworkIdentity ClientIdentity { get; private set; } = null;
+
+    public ShowMiniGameInfoAction(NetworkIdentity target, NetworkIdentity client) 
+    { 
+        TargetIdentity = target; 
+        ClientIdentity = client;
     }
 }

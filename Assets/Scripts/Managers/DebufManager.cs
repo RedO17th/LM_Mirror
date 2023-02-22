@@ -33,12 +33,12 @@ public class DebufManager : BaseGameManager
     {
         Debug.Log($"DebufManager.ProcessMiniGameFinishAction: finish type is { action.CompletionType } ");
 
-        ProcessMiniGameCompletion(action.CompletionType);
+        ProcessMiniGameCompletion(action);
     }
 
-    private void ProcessMiniGameCompletion(MiniGameCompletion type)
+    private void ProcessMiniGameCompletion(MiniGameFinishAction action)
     {
-        if (type == MiniGameCompletion.Correct)
+        if (action.CompletionType == MiniGameCompletion.Correct)
         {
             TargetPlayerType = PlayerType.None;
             _necessaryDebufType = DebufType.None;

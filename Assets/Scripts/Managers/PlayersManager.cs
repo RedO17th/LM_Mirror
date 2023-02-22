@@ -76,7 +76,7 @@ public class PlayersManager : BaseGameManager
 
     private void ProcessMiniGameStart(MiniGameStartByAction action)
     {
-        StopPlayerByNetConnection(action.Connection);
+        StopPlayerByNetConnection(action.PlayerNetConnection);
     }
     private void StopPlayerByNetConnection(NetworkConnection targetConnection)
     {
@@ -84,8 +84,6 @@ public class PlayersManager : BaseGameManager
         {
             if (player.Identity.connectionToClient == targetConnection)
             {
-                Debug.Log($"StopPlayerByNetConnection: { player.gameObject.name } ");
-
                 player.StopMovement();
                 break;
             }
@@ -94,18 +92,32 @@ public class PlayersManager : BaseGameManager
 
     private void ProcessMiniGameFinish(MiniGameFinishAction action)
     {
-        StartPlayerByNetConnection(action.Connection);
+        StartPlayerByNetConnection(action.PlayerNetConnection);
+        ShowMiniGameInfo(action);
     }
+
     private void StartPlayerByNetConnection(NetworkConnection targetConnection)
     {
         foreach (var player in _createdPlayers)
         {
             if (player.Identity.connectionToClient == targetConnection)
             {
-                Debug.Log($"StartPlayerByNetConnection: { player.gameObject.name } ");
-
                 player.StartMovemet();
                 break;
+            }
+        }
+    }
+
+    private void ShowMiniGameInfo(MiniGameFinishAction action)
+    {
+        foreach (var anotherPlayer in _createdPlayers)
+        {
+            if (anotherPlayer.Identity.connectionToClient != action.PlayerNetConnection)
+            {
+                var targetIdentity = anotherPlayer.Identity;
+                var clientIdentity = action.PlayerIdentity;
+
+                ProjectBus.Instance.SendAction(new ShowMiniGameInfoAction(targetIdentity, clientIdentity));
             }
         }
     }

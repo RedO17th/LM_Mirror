@@ -15,11 +15,14 @@ public interface INetworkPlayer
 public interface IPlayer : IMovable, INetworkPlayer
 {
     PlayerType Type { get; }
+    string Name { get; }
     Vector3 Position { get; }
 }
 
 public class BasePlayer : NetworkBehaviour, IPlayer
 {
+    [SerializeField] private string _name = string.Empty;
+
     [SerializeField] private PlayerType _playerType = PlayerType.None;
 
     [SerializeField] private float _speedMovement = 5f;
@@ -27,6 +30,7 @@ public class BasePlayer : NetworkBehaviour, IPlayer
 
     public NetworkIdentity Identity => _identity;
     public PlayerType Type => _playerType;
+    public string Name => _name;
     public Vector3 Position => transform.position;
 
     private NetworkIdentity _identity = null;

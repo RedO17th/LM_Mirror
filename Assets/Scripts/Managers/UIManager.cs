@@ -1,19 +1,30 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Principal;
 using Mirror;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class UIManager : BaseGameManager
 {
+    [Header("Info components")]
+    [SerializeField] private GameObject _infoPanel = null;
+    [SerializeField] private TextMeshProUGUI _text = null;
+
+    [Tooltip("Time of showing info panel")]
+    [Range(1, 21)]
+    [SerializeField] private float _timeDurtion = 0f;
+
+    [Space]
     [SerializeField] private StandaloneInputModule _inputModule = null;
     [SerializeField] private GameObject _miniGamePanel = null;
     [SerializeField] private VariableJoystick _variableJoystick = null;
 
     public VariableJoystick Joystick => _variableJoystick;
 
-    public override void Initialize() { }
+    private float _timeLeft = 0f;
 
     public override void Prepare() => PrepareForServer();
 
@@ -25,10 +36,10 @@ public class UIManager : BaseGameManager
         ProjectBus.OnMiniGameStartAction += ProcessMiniGameStartAction;
         ProjectBus.OnMiniGameFinishAction += ProcessMiniGameFinishAction;
 
+        ProjectBus.OnShowMiniGameInfoAction += ProcessShowInfoAction;
+
         _variableJoystick.gameObject.SetActive(false);
     }
-
-    public override void Activate() => base.Activate();
 
     private void ProcessPlayerSpawnAction(PlayerSpawnAction action) => RpcActivatInputView();
 
@@ -40,11 +51,11 @@ public class UIManager : BaseGameManager
 
     private void ProcessMiniGameStartAction(MiniGameStartByAction action)
     {
-        TargetRpcActivateGamePanel(action.Connection);
+        TargetRpcActivateGamePanel(action.PlayerNetConnection);
     }
 
     [TargetRpc]
-    private void TargetRpcActivateGamePanel(NetworkConnection targetConnection) 
+    private void TargetRpcActivateGamePanel(NetworkConnection targetConnection)
     {
         _miniGamePanel.SetActive(true);
 
@@ -55,7 +66,7 @@ public class UIManager : BaseGameManager
 
     private void ProcessMiniGameFinishAction(MiniGameFinishAction action)
     {
-        TargetRpcDeactivateGamePanel(action.Connection);
+        TargetRpcDeactivateGamePanel(action.PlayerNetConnection);
     }
 
     [TargetRpc]
@@ -65,11 +76,96 @@ public class UIManager : BaseGameManager
         _inputModule.ActivateModule();
     }
 
+    private void ProcessShowInfoAction(ShowMiniGameInfoAction action)
+    {
+        var targetConnection = action.TargetIdentity.connectionToClient;
+        var clientIdentity = action.ClientIdentity;
+
+        TargetRpcShowInfoAboutDebuffedPlayers(targetConnection, clientIdentity);
+    }
+
+    [TargetRpc]
+    private void TargetRpcShowInfoAboutDebuffedPlayers(NetworkConnection targetConnection, NetworkIdentity client)
+    {
+        var player = client.GetComponent<BasePlayer>();
+
+        SetInfoIntoPanelAboutDebuffedPlayer(player);
+    }
+
+    #region InfoPanel
+
+    private void SetInfoIntoPanelAboutDebuffedPlayer(BasePlayer player)
+    {
+        ActivateInfoPanel();
+
+        if (RecordsIsExisting())
+        {
+            AddRecord(GetNewLineInfo(player));
+
+            return;
+        }
+
+        AddRecord(GetLineInfo(player));    
+        StartCoroutine(InfoPanelTimer());
+    }
+
+    private void ActivateInfoPanel()
+    {
+        if (_infoPanel.activeInHierarchy == false)
+            _infoPanel.SetActive(true);
+    }
+
+    private bool RecordsIsExisting()
+    {
+        return (_text.text != string.Empty) ? true : false;
+    }
+
+    private void AddRecord(string record)
+    {
+        SetInfoIntoPanel(record);
+        SetTimeDurationForInfoPanelTimer();
+    }
+    private void SetInfoIntoPanel(string info)
+    {
+        _text.text += info;
+    }
+    private void SetTimeDurationForInfoPanelTimer()
+    {
+        _timeLeft = _timeDurtion;
+    }
+
+    private string GetNewLineInfo(BasePlayer player)
+    {
+        return $"\n { player.Name } попался..";
+    }
+
+    private string GetLineInfo(BasePlayer player)
+    {
+        return $"{ player.Name } попался..";
+    }
+
+    private IEnumerator InfoPanelTimer()
+    {
+        while (_timeLeft > 0f)
+        {
+            _timeLeft -= Time.deltaTime;
+
+            yield return null;
+        }
+
+        _infoPanel.SetActive(false);
+        SetInfoIntoPanel(string.Empty);
+    }
+
+    #endregion
+
     public override void Deactivate()
     {
         ProjectBus.OnPlayerSpawnAction -= ProcessPlayerSpawnAction;
 
         ProjectBus.OnMiniGameStartAction -= ProcessMiniGameStartAction;
         ProjectBus.OnMiniGameFinishAction -= ProcessMiniGameFinishAction;
+
+        ProjectBus.OnShowMiniGameInfoAction -= ProcessShowInfoAction;
     }
 }
