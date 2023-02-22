@@ -68,5 +68,6 @@ public class BasePlayer : NetworkBehaviour, IPlayer
         _movementController.Disable();
 
         _playerRB.velocity = Vector3.zero;
+        _playerRB.angularVelocity = Vector3.zero;
     }
 }

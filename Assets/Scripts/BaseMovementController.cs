@@ -27,6 +27,8 @@ public class BaseMovementController : NetworkBehaviour
     [ClientRpc]
     private void RpcEnable()
     {
+        _inputDirection = Vector3.zero;
+
         enabled = true;
     }
 
