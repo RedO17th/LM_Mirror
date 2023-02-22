@@ -4,11 +4,13 @@ using System;
 public class ProjectBus
 {
     public static event Action<CollectItemAction> OnCollectItemAction;
-    public static event Action<MiniGameStartAction> OnMiniGameStartAction;
+    public static event Action<MiniGameStartByAction> OnMiniGameStartAction;
     public static event Action<MiniGameFinishAction> OnMiniGameFinishAction;
 
     public static event Action<ClientConnectAction> OnClientConnectAction;
     public static event Action<ClientDisconnectAction> OnClientDisconnectAction;
+
+    public static event Action<ClientNetworkConnectionAction> OnClientConnectionAction;
 
     public static event Action<PlayerSpawnAction> OnPlayerSpawnAction;
 
@@ -33,7 +35,7 @@ public class ProjectBus
     {
         OnCollectItemAction?.Invoke(action);
     }
-    public void SendAction(MiniGameStartAction action)
+    public void SendAction(MiniGameStartByAction action)
     {
         OnMiniGameStartAction?.Invoke(action);
     }
@@ -50,6 +52,12 @@ public class ProjectBus
     {
         OnClientDisconnectAction?.Invoke(action);
     }
+
+    public void SendAction(ClientNetworkConnectionAction action)
+    {
+        OnClientConnectionAction?.Invoke(action);
+    }
+
     public void SendAction(PlayerSpawnAction action)
     {
         OnPlayerSpawnAction?.Invoke(action);
@@ -66,17 +74,25 @@ public class CollectItemAction
     }
 }
 
-public class MiniGameStartAction 
+public class MiniGameStartByAction 
 {
-    public MiniGameStartAction() { }
+    public NetworkConnection Connection { get; private set; } = null;
+    public MiniGameStartByAction(NetworkConnection connection) 
+    {
+        Connection = connection;
+    }
 }
 
 public class MiniGameFinishAction
 {
+    public NetworkConnectionToClient Connection => _playerIdentity.connectionToClient;
     public MiniGameCompletion CompletionType { get; private set; } = MiniGameCompletion.None;
 
-    public MiniGameFinishAction(MiniGameCompletion type) 
+    private NetworkIdentity _playerIdentity = null;
+
+    public MiniGameFinishAction(NetworkIdentity identity, MiniGameCompletion type) 
     {
+        _playerIdentity = identity;
         CompletionType = type;
     }
 }
@@ -94,6 +110,15 @@ public class ClientConnectAction
 public class ClientDisconnectAction
 {
     public ClientDisconnectAction() { }
+}
+
+public class ClientNetworkConnectionAction
+{
+    public NetworkConnection Connection { get; private set; } = null;
+    public ClientNetworkConnectionAction(NetworkConnection connection)
+    {
+        Connection = connection;
+    }
 }
 
 public class PlayerSpawnAction

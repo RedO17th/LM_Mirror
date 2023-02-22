@@ -3,14 +3,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public interface ICollectable
 {
     event Action<ICollectable> OnCollected;
 
-    uint NetID { get; }
-
     DebufType DebufType { get; }
+    IPlayer Target { get; }
     PlayerType TargetType { get; }
 
     void Enable();
@@ -26,9 +26,8 @@ public class BaseCollectable : NetworkBehaviour, ICollectable
 
     public event Action<ICollectable> OnCollected;
 
-    public uint NetID => netId;
-
     public DebufType DebufType => _debufType;
+    public IPlayer Target => _target;
     public PlayerType TargetType => _targetType;
 
     protected CollectableManager _manager = null;
@@ -37,6 +36,8 @@ public class BaseCollectable : NetworkBehaviour, ICollectable
     public bool _isActivated = true;
 
     protected float _collisionDistance = 0f;
+
+    private const float POSITIONTRASHOLD = 1f;
 
     public virtual void Initialize(CollectableManager manager, IPlayer target)
     {
@@ -76,7 +77,10 @@ public class BaseCollectable : NetworkBehaviour, ICollectable
     }
     protected virtual bool CheckCollisionDistance()
     {
-        return Vector3.Distance(transform.position, _target.Position) <= _collisionDistance;
+        var targetPosition = _target != null ? _target.Position 
+                                             : Vector3.one * (_collisionDistance + POSITIONTRASHOLD);
+
+        return Vector3.Distance(transform.position, targetPosition) <= _collisionDistance;
     }
 
     public void Deactivate()

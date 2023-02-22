@@ -1,3 +1,4 @@
+using Mirror;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -7,7 +8,12 @@ using Slider = UnityEngine.UI.Slider;
 
 public enum MiniGameCompletion { None = -1, Correct, Incorrect }
 
-public interface IMiniGame
+public interface INetworkMiniGame
+{
+    NetworkIdentity PlayerIdentity { get; }
+}
+
+public interface IMiniGame : INetworkMiniGame
 {
     event Action<IMiniGame> OnCompleted;
 
@@ -25,11 +31,17 @@ public class BaseMiniGame : MonoBehaviour, IMiniGame
 
     public event Action<IMiniGame> OnCompleted;
 
+    public NetworkIdentity PlayerIdentity { get; private set; } = null;
     public MiniGameCompletion CompletionType { get; protected set; } = MiniGameCompletion.None;
 
     protected bool _gameTimeIsOver = false;
 
     protected virtual void OnMiniGameCompleted(IMiniGame game) => OnCompleted?.Invoke(game);
+
+    public virtual void SetPlayerIdentity(NetworkIdentity clientIdentity)
+    {
+        PlayerIdentity = clientIdentity;
+    }
 
     public virtual void Enable() { gameObject.SetActive(true); }
 

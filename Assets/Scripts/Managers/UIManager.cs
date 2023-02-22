@@ -38,10 +38,13 @@ public class UIManager : BaseGameManager
         _variableJoystick.gameObject.SetActive(true);
     }
 
-    private void ProcessMiniGameStartAction(MiniGameStartAction obj) => RpcActivateGamePanel();
+    private void ProcessMiniGameStartAction(MiniGameStartByAction action)
+    {
+        TargetRpcActivateGamePanel(action.Connection);
+    }
 
-    [ClientRpc]
-    private void RpcActivateGamePanel() 
+    [TargetRpc]
+    private void TargetRpcActivateGamePanel(NetworkConnection targetConnection) 
     {
         _miniGamePanel.SetActive(true);
 
@@ -50,10 +53,13 @@ public class UIManager : BaseGameManager
         _inputModule.DeactivateModule();
     }
 
-    private void ProcessMiniGameFinishAction(MiniGameFinishAction obj) => RpcDeactivateGamePanel();
+    private void ProcessMiniGameFinishAction(MiniGameFinishAction action)
+    {
+        TargetRpcDeactivateGamePanel(action.Connection);
+    }
 
-    [ClientRpc]
-    private void RpcDeactivateGamePanel()
+    [TargetRpc]
+    private void TargetRpcDeactivateGamePanel(NetworkConnection targetConnection)
     {
         _miniGamePanel.SetActive(false);
         _inputModule.ActivateModule();

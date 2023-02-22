@@ -7,7 +7,12 @@ public interface IMovable
     void RotateByDirection(Vector3 direction);
 }
 
-public interface IPlayer : IMovable
+public interface INetworkPlayer
+{
+    NetworkIdentity Identity { get; }
+}
+
+public interface IPlayer : IMovable, INetworkPlayer
 {
     PlayerType Type { get; }
     Vector3 Position { get; }
@@ -20,14 +25,17 @@ public class BasePlayer : NetworkBehaviour, IPlayer
     [SerializeField] private float _speedMovement = 5f;
     [SerializeField] private float _speedRotation = 5f;
 
+    public NetworkIdentity Identity => _identity;
     public PlayerType Type => _playerType;
     public Vector3 Position => transform.position;
 
+    private NetworkIdentity _identity = null;
     private Rigidbody _playerRB = null;
     private BaseMovementController _movementController = null;
 
     private void Awake()
     {
+        _identity = GetComponent<NetworkIdentity>();  
         _playerRB = GetComponent<Rigidbody>();  
         _movementController = GetComponent<BaseMovementController>();  
     }

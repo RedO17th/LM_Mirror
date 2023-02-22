@@ -62,7 +62,6 @@ public class PlayersManager : BaseGameManager
 
         ProjectBus.Instance.SendAction(new PlayerSpawnAction(player));
     }
-
     private BasePlayer CreatePlayer(BasePlayer prefab)
     {
         return Instantiate(prefab);
@@ -75,18 +74,17 @@ public class PlayersManager : BaseGameManager
         return new Vector3(xPosition, 0f, zPosition);
     }
 
-    private void ProcessMiniGameStart(MiniGameStartAction obj) => StopPlayer();
-    private void StopPlayer()
+    private void ProcessMiniGameStart(MiniGameStartByAction action)
     {
-        Debug.Log($"PlayersManager.StopPlayer");
-
+        StopPlayerByNetConnection(action.Connection);
+    }
+    private void StopPlayerByNetConnection(NetworkConnection targetConnection)
+    {
         foreach (var player in _createdPlayers)
         {
-            Debug.Log($"Player is {player.gameObject.name}");
-
-            if (player.isLocalPlayer)
+            if (player.Identity.connectionToClient == targetConnection)
             {
-                Debug.Log($"isLocalPlayer is { player.gameObject.name }");
+                Debug.Log($"StopPlayerByNetConnection: { player.gameObject.name } ");
 
                 player.StopMovement();
                 break;
@@ -94,18 +92,17 @@ public class PlayersManager : BaseGameManager
         }
     }
 
-    private void ProcessMiniGameFinish(MiniGameFinishAction obj) => StartPlayer();
-    private void StartPlayer()
+    private void ProcessMiniGameFinish(MiniGameFinishAction action)
     {
-        Debug.Log($"PlayersManager.StartPlayer");
-
+        StartPlayerByNetConnection(action.Connection);
+    }
+    private void StartPlayerByNetConnection(NetworkConnection targetConnection)
+    {
         foreach (var player in _createdPlayers)
         {
-            Debug.Log($"Player is {player.gameObject.name}");
-
-            if (player.isLocalPlayer)
+            if (player.Identity.connectionToClient == targetConnection)
             {
-                Debug.Log($"isLocalPlayer is {player.gameObject.name}");
+                Debug.Log($"StartPlayerByNetConnection: { player.gameObject.name } ");
 
                 player.StartMovemet();
                 break;

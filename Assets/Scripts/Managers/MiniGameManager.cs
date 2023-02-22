@@ -13,29 +13,37 @@ public class MiniGameManager : BaseGameManager
     [Server]
     private void PrepareForServer()
     {
-        ProjectBus.OnCollectItemAction += ProcessAction;
+        ProjectBus.OnCollectItemAction += ProcessCollecting;
     }
 
     public override void Activate() { }
 
-    private void ProcessAction(CollectItemAction action) => ProcessCollecting();
-    private void ProcessCollecting()
+    private void ProcessCollecting(CollectItemAction action) 
     {
-        OnMiniGameStartEvent();
-        RpcActivateMiniGame();
+        var clientNetIdentity = GetNetworkConnectionFromCollectableTarget(action);
+
+        OnMiniGameStartEvent(clientNetIdentity.connectionToClient);
+        TargetRpcActivateMiniGame(clientNetIdentity.connectionToClient, clientNetIdentity);
     }
 
-    private void OnMiniGameStartEvent()
+    private NetworkIdentity GetNetworkConnectionFromCollectableTarget(CollectItemAction action)
     {
-        ProjectBus.Instance.SendAction(new MiniGameStartAction());
+        return action.Collectable.Target.Identity;
     }
 
-    [ClientRpc]
-    private void RpcActivateMiniGame()
+    private void OnMiniGameStartEvent(NetworkConnection targetConnection)
+    {
+        ProjectBus.Instance.SendAction(new MiniGameStartByAction(targetConnection));
+    }
+
+    [TargetRpc]
+    private void TargetRpcActivateMiniGame(NetworkConnection targetConnection, NetworkIdentity identity)
     {
         var miniGame = GetRandomMiniGame();
 
             miniGame.OnCompleted += ProcessMiniGameCompletion;
+
+            miniGame.SetPlayerIdentity(identity);
 
             miniGame.Enable();
             miniGame.Activate();
@@ -53,7 +61,7 @@ public class MiniGameManager : BaseGameManager
     {
         DeactivateMiniGame(game);
 
-        CmdOnMiniGameFinishedEvent(game.CompletionType);
+        CmdOnMiniGameFinishedEvent(game.PlayerIdentity, game.CompletionType);
     }
 
     private void DeactivateMiniGame(IMiniGame game)
@@ -64,13 +72,13 @@ public class MiniGameManager : BaseGameManager
     }
 
     [Command(requiresAuthority = false)]
-    private void CmdOnMiniGameFinishedEvent(MiniGameCompletion type)
+    private void CmdOnMiniGameFinishedEvent(NetworkIdentity identity, MiniGameCompletion type)
     {
-        ProjectBus.Instance.SendAction(new MiniGameFinishAction(type));
+        ProjectBus.Instance.SendAction(new MiniGameFinishAction(identity, type));
     }
 
     public override void Deactivate()
     {
-        ProjectBus.OnCollectItemAction -= ProcessAction;
+        ProjectBus.OnCollectItemAction -= ProcessCollecting;
     }
 }
