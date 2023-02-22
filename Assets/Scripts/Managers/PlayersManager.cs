@@ -107,8 +107,15 @@ public class PlayersManager : BaseGameManager
             }
         }
     }
-
     private void ShowMiniGameInfo(MiniGameFinishAction action)
+    {
+        if (action.CompletionType == MiniGameCompletion.Incorrect)
+        {
+            ShowInfoAboutDebuffedPlayers(action);
+        }
+    }
+
+    private void ShowInfoAboutDebuffedPlayers(MiniGameFinishAction action)
     {
         foreach (var anotherPlayer in _createdPlayers)
         {
@@ -135,6 +142,8 @@ public class PlayersManager : BaseGameManager
 
         ProjectBus.OnMiniGameStartAction -= ProcessMiniGameStart;
         ProjectBus.OnMiniGameFinishAction -= ProcessMiniGameFinish;
+
+        _currentPlayerIndex = -1;
     }
 } 
  

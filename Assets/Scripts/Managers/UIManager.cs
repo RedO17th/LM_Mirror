@@ -153,8 +153,13 @@ public class UIManager : BaseGameManager
             yield return null;
         }
 
+        DeactivateInfoPanel();
+    }
+
+    private void DeactivateInfoPanel()
+    {
         _infoPanel.SetActive(false);
-        SetInfoIntoPanel(string.Empty);
+        _text.text = string.Empty;
     }
 
     #endregion
